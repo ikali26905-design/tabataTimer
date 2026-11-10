@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <!-- viewport-fit=cover : on utilise tout l'écran, y compris sous l'encoche (géré en CSS avec env(safe-area-inset-*)) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Tabata Timer</title>
+  <meta name="description" content="Timer Tabata et EMOM, utilisable hors ligne.">
+
+  <!-- ===== PWA ===== -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0b0b0c">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <!-- iPhone : Safari n'utilise pas les icônes du manifest, il lui faut ce PNG -->
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Tabata">
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- =========================================================
+       ÉCRAN 1 : ACCUEIL — dernière séance + gros bouton DÉMARRER
+       ========================================================= -->
+  <section id="screen-home" class="screen">
+    <header class="topbar">
+      <h1 class="brand">Tabata<span>Timer</span></h1>
+      <button class="icon-btn js-mute" type="button" aria-label="Couper le son">🔊</button>
+    </header>
+
+    <div class="home-main">
+      <p class="eyebrow">Séance prête</p>
+      <h2 id="home-preset-name"></h2>
+      <p id="home-summary" class="summary"></p>
+      <ul id="home-exercises" class="chips"></ul>
+    </div>
+
+    <button id="btn-start" class="btn btn-primary btn-huge" type="button">▶ DÉMARRER</button>
+
+    <nav class="home-nav">
+      <button class="btn" type="button" data-goto="screen-presets">Séances</button>
+      <button class="btn" type="button" id="btn-edit-current">Modifier</button>
+      <button class="btn" type="button" data-goto="screen-history">Historique</button>
+    </nav>
+  </section>
+
+  <!-- =========================================================
+       ÉCRAN 2 : LISTE DES SÉANCES (préréglages)
+       ========================================================= -->
+  <section id="screen-presets" class="screen" hidden>
+    <header class="topbar">
+      <button class="icon-btn" type="button" data-goto="screen-home" aria-label="Retour">←</button>
+      <h1>Mes séances</h1>
+    </header>
+    <ul id="preset-list" class="card-list"></ul>
+    <button id="btn-new-preset" class="btn btn-primary" type="button">+ Nouvelle séance</button>
+  </section>
+
+  <!-- =========================================================
+       ÉCRAN 3 : ÉDITION D'UNE SÉANCE
+       Les "steppers" (– valeur +) et les listes d'exercices sont générés par app.js
+       ========================================================= -->
+  <section id="screen-edit" class="screen" hidden>
+    <header class="topbar">
+      <button class="icon-btn" type="button" id="btn-edit-cancel" aria-label="Annuler">←</button>
+      <h1 id="edit-title">Modifier la séance</h1>
+    </header>
+
+    <div class="form">
+      <label class="field">
+        <span>Nom de la séance</span>
+        <input id="edit-name" type="text" maxlength="40" autocomplete="off">
+      </label>
+
+      <div class="segmented" role="group" aria-label="Type de séance">
+        <button type="button" data-mode="tabata">Tabata</button>
+        <button type="button" data-mode="emom">EMOM</button>
+      </div>
+
+      <p id="edit-total" class="summary"></p>
+
+      <!-- Réglages du mode Tabata -->
+      <div id="edit-tabata" class="form">
+        <div class="steppers" data-group="tabata"></div>
+        <h3>Exercices d'un round</h3>
+        <p class="hint">Chaque exercice = effort puis repos. Laisse la durée vide pour utiliser l'effort commun.</p>
+        <ul id="edit-exercises" class="ex-list" data-list="exercises"></ul>
+        <button type="button" class="btn" data-add="exercises">+ Ajouter un exercice</button>
+      </div>
+
+      <!-- Réglages du mode EMOM -->
+      <div id="edit-emom" class="form" hidden>
+        <div class="steppers" data-group="emom"></div>
+        <h3>Exercices <small>(alternés chaque minute)</small></h3>
+        <p class="hint">Fais tes répétitions, le temps restant dans la minute est ton repos.</p>
+        <ul id="edit-emom-exercises" class="ex-list" data-list="emomExercises"></ul>
+        <button type="button" class="btn" data-add="emomExercises">+ Ajouter un exercice</button>
+      </div>
+
+      <h3>Son et voix <small>(pour toutes les séances)</small></h3>
+      <label class="field">
+        <span>Volume</span>
+        <input id="opt-volume" type="range" min="0" max="1" step="0.05">
+      </label>
+      <label class="toggle">
+        <input id="opt-voice" type="checkbox">
+        <span>Annonces vocales (« Effort ! Burpees »)</span>
+      </label>
+      <button id="btn-test-sound" class="btn" type="button">🔈 Tester le son</button>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn-primary" type="button" id="btn-save">Enregistrer</button>
+      <button class="btn" type="button" id="btn-save-as">Enregistrer comme nouvelle séance</button>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       ÉCRAN 4 : HISTORIQUE
+       ========================================================= -->
+  <section id="screen-history" class="screen" hidden>
+    <header class="topbar">
+      <button class="icon-btn" type="button" data-goto="screen-home" aria-label="Retour">←</button>
+      <h1>Historique</h1>
+    </header>
+    <ul id="history-list" class="card-list"></ul>
+    <button id="btn-clear-history" class="btn" type="button">Effacer l'historique</button>
+  </section>
+
+  <!-- =========================================================
+       ÉCRAN 5 : SÉANCE EN COURS
+       La couleur de fond dépend de l'attribut data-phase (voir style.css)
+       ========================================================= -->
+  <section id="screen-workout" class="screen workout" data-phase="prep" hidden>
+    <div class="wo-top">
+      <button class="icon-btn js-mute" type="button" aria-label="Couper le son">🔊</button>
+      <div class="wo-total">Reste <strong id="wo-total">00:00</strong></div>
+    </div>
+
+    <div class="wo-head">
+      <p id="wo-phase" class="wo-phase" aria-live="polite">PRÉPARATION</p>
+      <p id="wo-exercise" class="wo-exercise"></p>
+    </div>
+
+    <div class="wo-ring">
+      <!-- Anneau de progression : pathLength="1" permet de régler la progression
+           avec une valeur entre 0 et 1 (stroke-dashoffset) -->
+      <svg class="ring" viewBox="0 0 200 200">
+        <circle class="ring-track" cx="100" cy="100" r="90"/>
+        <circle id="wo-ring" class="ring-progress" cx="100" cy="100" r="90"
+                pathLength="1" transform="rotate(-90 100 100)"/>
+        <text id="wo-time" class="ring-time" x="100" y="102">00:00</text>
+      </svg>
+    </div>
+
+    <div class="wo-info">
+      <p id="wo-round" class="wo-round"></p>
+      <p id="wo-next" class="wo-next"></p>
+    </div>
+
+    <!-- Contrôles pendant la séance -->
+    <div id="wo-controls" class="wo-controls">
+      <button id="btn-stop" class="wo-btn" type="button">↺<span>Stop</span></button>
+      <button id="btn-pause" class="wo-btn wo-btn-main" type="button">⏸<span>Pause</span></button>
+      <button id="btn-skip" class="wo-btn" type="button">⏭<span>Passer</span></button>
+    </div>
+
+    <!-- Contrôles une fois la séance terminée -->
+    <div id="wo-done-actions" class="wo-controls wo-controls-done" hidden>
+      <button id="btn-restart" class="wo-btn" type="button">↻<span>Recommencer</span></button>
+      <button id="btn-home" class="wo-btn wo-btn-main" type="button">⌂<span>Accueil</span></button>
+    </div>
+  </section>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
