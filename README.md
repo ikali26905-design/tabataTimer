@@ -12,6 +12,7 @@ Elle s'installe sur l'écran d'accueil et fonctionne hors ligne.
 | `js/app.js` | Toute la logique, en 12 sections commentées |
 | `manifest.json` | Nom, icônes, couleurs, mode plein écran (standalone) |
 | `sw.js` | Service worker : cache hors ligne |
+| `fonts/` | Police Chakra Petch (licence libre OFL), hébergée localement pour le hors-ligne |
 | `icons/` | Icône source (SVG) et versions PNG (192, 512, 180 pour l'iPhone) |
 
 ## Tester en local
