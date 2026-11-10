@@ -1,0 +1,410 @@
+/* =========================================================
+   TABATA TIMER — style.css
+   Sommaire :
+   1. Variables (couleurs, tailles) : à modifier en priorité
+   2. Base
+   3. Composants communs (boutons, barre du haut)
+   4. Accueil
+   5. Listes (séances, historique)
+   6. Formulaire d'édition
+   7. Écran de séance (portrait)
+   8. Écran de séance (paysage)
+   ========================================================= */
+
+/* ---------- 1. VARIABLES ---------- */
+:root {
+  /* Thème principal : noir / gris sombre */
+  --bg: #0b0b0c;
+  --surface: #161618;
+  --surface-2: #242428;
+  --border: #2e2e33;
+  --text: #f5f5f5;
+  --muted: #9a9aa2;
+  --accent: #ef4444;          /* rouge, utilisé avec parcimonie */
+
+  /* Couleurs des phases : fonds pleins, bien visibles à 3 m */
+  --phase-prep: #f59e0b;      /* orange/jaune */
+  --phase-work: #dc2626;      /* rouge */
+  --phase-rest: #16a34a;      /* vert */
+  --phase-round-rest: #0f766e;/* vert-bleu : repos long entre rounds */
+  --phase-done: #172554;      /* bleu nuit */
+
+  --radius: 18px;
+  --tap: 64px;                /* hauteur minimale d'une zone tactile */
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+
+  color-scheme: dark;         /* champs de formulaire natifs en sombre */
+}
+
+/* ---------- 2. BASE ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  -webkit-tap-highlight-color: transparent;  /* pas de flash gris au toucher sur mobile */
+  -webkit-text-size-adjust: 100%;
+}
+
+body { min-height: 100dvh; overscroll-behavior: none; }
+
+/* L'attribut hidden doit toujours gagner, même sur un élément en display:grid */
+[hidden] { display: none !important; }
+
+button { font: inherit; color: inherit; cursor: pointer; touch-action: manipulation; }
+
+/* Chaque écran occupe toute la hauteur ; les marges respectent l'encoche (safe-area) */
+.screen {
+  min-height: 100dvh;
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding:
+    max(16px, env(safe-area-inset-top))
+    max(16px, env(safe-area-inset-right))
+    max(16px, env(safe-area-inset-bottom))
+    max(16px, env(safe-area-inset-left));
+}
+
+h3 { margin: 8px 0 0; font-size: 1.15rem; }
+h3 small { color: var(--muted); font-weight: 500; }
+
+/* ---------- 3. COMPOSANTS COMMUNS ---------- */
+.topbar { display: flex; align-items: center; gap: 12px; }
+.topbar h1 { flex: 1; margin: 0; font-size: 1.4rem; }
+
+.brand { font-size: 1.5rem; font-weight: 900; letter-spacing: -0.02em; }
+.brand span { margin-left: 0.25em; color: var(--muted); font-weight: 500; }
+
+.icon-btn {
+  flex: none;
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 1.5rem;
+}
+
+.btn {
+  min-height: var(--tap);
+  padding: 0 20px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.btn:active, .wo-btn:active, .icon-btn:active { transform: scale(0.97); }
+.btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* Bouton principal : blanc sur noir, le plus contrasté possible */
+.btn-primary { background: var(--text); color: #000; border-color: transparent; }
+.btn-huge { min-height: 104px; font-size: 1.9rem; font-weight: 900; letter-spacing: 0.04em; }
+
+/* Bouton "armé" : 1er appui = demande de confirmation, 2e appui = action */
+.is-armed { background: var(--accent) !important; color: #fff !important; }
+
+/* ---------- 4. ACCUEIL ---------- */
+.home-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+#home-preset-name {
+  margin: 0;
+  font-size: clamp(2.2rem, 9vw, 3.5rem);
+  font-weight: 900;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+}
+
+.summary { margin: 0; color: var(--muted); font-size: 1.1rem; font-variant-numeric: tabular-nums; }
+
+.chips { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.chips li { padding: 8px 14px; border-radius: 999px; background: var(--surface-2); font-weight: 600; }
+
+.home-nav { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.home-nav .btn { padding: 0 8px; font-size: 1rem; }
+
+/* ---------- 5. LISTES (séances, historique) ---------- */
+.card-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+.card.is-current { border-color: var(--text); }
+
+.card-main {
+  display: block;
+  width: 100%;
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  text-align: left;
+}
+.card-title { display: block; font-size: 1.3rem; font-weight: 800; }
+.card-sub { display: block; margin-top: 4px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+.history-item { flex-direction: row; align-items: center; gap: 14px; }
+.history-status { font-size: 1.6rem; }
+.history-text { flex: 1; }
+.history-duration { font-size: 1.2rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+
+.empty { color: var(--muted); text-align: center; padding: 32px 0; }
+
+/* ---------- 6. FORMULAIRE D'ÉDITION ---------- */
+.form { flex: 1; display: flex; flex-direction: column; gap: 16px; }
+
+.field { display: flex; flex-direction: column; gap: 6px; color: var(--muted); font-weight: 600; }
+
+input[type="text"], input[type="number"] {
+  width: 100%;
+  min-height: 56px;
+  padding: 0 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 1.15rem;
+}
+input:focus-visible, button:focus-visible { outline: 3px solid var(--text); outline-offset: 2px; }
+input[type="range"] { width: 100%; height: 40px; accent-color: #fff; }
+
+/* Sélecteur Tabata / EMOM */
+.segmented {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 4px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+.segmented button {
+  min-height: 56px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+.segmented button[aria-pressed="true"] { background: var(--text); color: #000; }
+
+/* Stepper : [ libellé ] [ – ] [ valeur ] [ + ] */
+.steppers { display: flex; flex-direction: column; gap: 10px; }
+.stepper {
+  display: grid;
+  grid-template-columns: 1fr 60px minmax(84px, auto) 60px;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 8px 8px 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+.stepper-label { font-weight: 700; }
+.stepper button {
+  height: 56px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--surface-2);
+  font-size: 1.7rem;
+  font-weight: 800;
+}
+.stepper output { text-align: center; font-size: 1.3rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+
+/* Ligne d'exercice : nom sur toute la largeur, puis durée/répétitions + boutons */
+.ex-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.ex-row {
+  display: grid;
+  grid-template-columns: 1fr repeat(3, 56px);
+  gap: 8px;
+  padding: 10px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+.ex-row .ex-name { grid-column: 1 / -1; }
+.ex-num { display: flex; align-items: center; gap: 8px; color: var(--muted); font-weight: 600; }
+.ex-num input { min-width: 0; text-align: center; }
+.ex-row button {
+  height: 56px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--surface-2);
+  font-size: 1.2rem;
+}
+.ex-row button:disabled { opacity: 0.3; }
+
+.hint { margin: 0; color: var(--muted); }
+
+.toggle { display: flex; align-items: center; gap: 14px; min-height: 56px; font-weight: 700; }
+.toggle input { width: 28px; height: 28px; accent-color: #fff; }
+
+/* Boutons d'enregistrement collés en bas de l'écran pendant le défilement */
+.form-actions {
+  position: sticky;
+  bottom: 0;
+  display: grid;
+  gap: 10px;
+  padding-top: 16px;
+  padding-bottom: max(0px, env(safe-area-inset-bottom));
+  background: linear-gradient(transparent, var(--bg) 24px);
+}
+
+/* ---------- 7. ÉCRAN DE SÉANCE (portrait) ---------- */
+.workout {
+  /* La couleur de fond suit la phase (attribut data-phase posé par app.js) */
+  --phase-bg: var(--phase-prep);
+  --phase-fg: #fff;
+  max-width: none;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--phase-bg);
+  color: var(--phase-fg);
+  transition: background-color 0.4s ease;
+  text-align: center;
+  user-select: none;
+  -webkit-user-select: none;
+
+  /* Grille verticale : la ligne de l'anneau prend toute la place restante */
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+  grid-template-areas: "top" "head" "ring" "info" "controls";
+  gap: clamp(8px, 2vh, 20px);
+}
+.workout[data-phase="prep"]       { --phase-bg: var(--phase-prep); --phase-fg: #111; }
+.workout[data-phase="work"]       { --phase-bg: var(--phase-work); }
+.workout[data-phase="rest"]       { --phase-bg: var(--phase-rest); }
+.workout[data-phase="roundRest"]  { --phase-bg: var(--phase-round-rest); }
+.workout[data-phase="done"]       { --phase-bg: var(--phase-done); }
+
+.wo-top { grid-area: top; display: flex; justify-content: space-between; align-items: center; }
+.workout .icon-btn { background: rgba(0, 0, 0, 0.2); border-color: transparent; }
+.wo-total { font-size: 1.2rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.wo-total strong { font-weight: 900; }
+
+.wo-head { grid-area: head; }
+.wo-phase {
+  margin: 0;
+  font-size: clamp(2rem, min(12vw, 8vh), 5.5rem);
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  line-height: 1;
+}
+.wo-exercise {
+  margin: 0.2em 0 0;
+  min-height: 1.15em;   /* garde la place même vide : pas de saut de mise en page */
+  font-size: clamp(1.4rem, min(8vw, 5.5vh), 3.5rem);
+  font-weight: 800;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+/* Anneau + chrono : le SVG s'adapte à la place disponible grâce à son viewBox */
+.wo-ring { grid-area: ring; min-height: 0; display: flex; align-items: center; justify-content: center; }
+.ring { width: 100%; height: 100%; }
+.ring-track { fill: none; stroke: rgba(0, 0, 0, 0.18); stroke-width: 12; }
+.ring-progress {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 12;
+  stroke-linecap: round;
+  stroke-dasharray: 1;              /* avec pathLength="1" : 1 = tour complet */
+  transition: stroke-dashoffset 0.1s linear;
+}
+.ring-time {
+  fill: currentColor;
+  font-family: var(--font);
+  font-size: 50px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;  /* chiffres de largeur fixe : le texte ne "danse" pas */
+  letter-spacing: -1px;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+.workout.is-paused .ring-time { animation: blink 1s steps(2, start) infinite; }
+@keyframes blink { to { visibility: hidden; } }
+
+.wo-info { grid-area: info; }
+.wo-round {
+  margin: 0;
+  font-size: clamp(1.2rem, min(6vw, 4.5vh), 2.4rem);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.wo-next {
+  margin: 0.2em 0 0;
+  min-height: 1.3em;
+  font-size: clamp(1rem, min(4.5vw, 3.5vh), 1.6rem);
+  opacity: 0.85;
+}
+
+/* Gros boutons en bas, faciles à toucher avec un doigt en sueur */
+.wo-controls { grid-area: controls; display: grid; grid-template-columns: 1fr 1.6fr 1fr; gap: 12px; }
+.wo-controls-done { grid-template-columns: 1fr 1fr; }
+.wo-btn {
+  min-height: clamp(72px, 12vh, 112px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  border: 0;
+  border-radius: 22px;
+  background: rgba(0, 0, 0, 0.22);
+  color: inherit;
+  font-size: 1.8rem;
+  line-height: 1;
+}
+.wo-btn span { font-size: 0.95rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; }
+.wo-btn-main { background: rgba(0, 0, 0, 0.38); font-size: 2.4rem; }
+
+/* ---------- 8. ÉCRAN DE SÉANCE (paysage) ----------
+   Anneau à gauche, infos et boutons à droite. */
+@media (orientation: landscape) {
+  .workout {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr auto;
+    grid-template-areas:
+      "ring top"
+      "ring head"
+      "ring info"
+      "ring controls";
+    column-gap: clamp(16px, 4vw, 48px);
+  }
+  .wo-phase    { font-size: clamp(1.6rem, min(6vw, 11vh), 5rem); }
+  .wo-exercise { font-size: clamp(1.2rem, min(4.5vw, 8vh), 3.2rem); }
+  .wo-round    { font-size: clamp(1.1rem, min(3.5vw, 7vh), 2.2rem); }
+  .wo-info     { align-self: center; }
+  .wo-btn      { min-height: clamp(64px, 18vh, 112px); }
+}
