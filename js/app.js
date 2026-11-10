@@ -648,11 +648,83 @@ function updatePhaseColor() {
   const w = state.workout;
   const screen = $('screen-workout');
   screen.dataset.phase = w.finished ? 'done' : w.phases[w.index].type;
-  const varName = {
-    prep: '--phase-prep', work: '--phase-work', rest: '--phase-rest',
-    roundRest: '--phase-round-rest', done: '--phase-done',
-  }[screen.dataset.phase];
-  setThemeColor(getComputedStyle(document.documentElement).getPropertyValue(varName).trim());
+  // --deep = teinte sombre de la phase (définie dans style.css, section 8)
+  setThemeColor(getComputedStyle(screen).getPropertyValue('--deep').trim());
+}
+
+/* ---------- Afficheur à segments (même style que le logo) ----------
+   Chaque chiffre est fait de 7 segments, nommés a à g :
+        a
+      f   b
+        g
+      e   c
+        d
+   Pour afficher un chiffre, on "allume" ses segments (classe CSS "on"). */
+const SEGMENTS = {               // x, y, largeur, hauteur (chiffre de 72 × 140)
+  a: [14, 0, 44, 16],  b: [56, 14, 16, 48], c: [56, 78, 16, 48], d: [14, 124, 44, 16],
+  e: [0, 78, 16, 48],  f: [0, 14, 16, 48],  g: [14, 62, 44, 16],
+};
+const DIGIT_SEGMENTS = {
+  0: 'abcdef', 1: 'bc', 2: 'abged', 3: 'abgcd', 4: 'fgbc',
+  5: 'afgcd', 6: 'afgedc', 7: 'abc', 8: 'abcdefg', 9: 'abcdfg',
+};
+const DIGIT_X = [0, 92, 220, 312];  // position des 4 chiffres ; les ":" sont à x = 192
+let shownDigits = '';
+
+/* Construit une fois pour toutes les 4 chiffres et les ":" dans le SVG de l'anneau */
+function buildSegDisplay() {
+  const NS = 'http://www.w3.org/2000/svg';
+  const root = $('wo-digits');
+  // 384 × 140 = taille de "00:00" ; on centre dans l'anneau et on réduit à 40 %
+  root.setAttribute('transform', 'translate(100 100) scale(0.4) translate(-192 -70)');
+  DIGIT_X.forEach((x) => {
+    const g = document.createElementNS(NS, 'g');
+    g.setAttribute('transform', `translate(${x} 0)`);
+    for (const [name, [rx, ry, w, h]] of Object.entries(SEGMENTS)) {
+      const rect = document.createElementNS(NS, 'rect');
+      Object.entries({ x: rx, y: ry, width: w, height: h, rx: 8 }).forEach(([k, v]) => rect.setAttribute(k, v));
+      rect.dataset.seg = name;
+      g.appendChild(rect);
+    }
+    root.appendChild(g);
+  });
+  [42, 98].forEach((cy) => {
+    const dot = document.createElementNS(NS, 'circle');
+    Object.entries({ cx: 192, cy, r: 9 }).forEach(([k, v]) => dot.setAttribute(k, v));
+    root.appendChild(dot);
+  });
+}
+
+/* Affiche un temps (en secondes) sur l'afficheur, au format MM:SS */
+function setPhaseLabel(text) {
+  const el = $('wo-phase');
+  if (el.textContent === text) return;
+  el.textContent = text;
+  fitText(el);
+}
+
+function setDigits(totalSec) {
+  const text = formatClock(Math.min(totalSec, 99 * 60 + 59)).replace(':', '');  // "0114"
+  if (text === shownDigits) return;     // rien n'a changé : on ne touche pas au DOM
+  shownDigits = text;
+  $('wo-digits').querySelectorAll(':scope > g').forEach((digitGroup, i) => {
+    const lit = DIGIT_SEGMENTS[text[i]];
+    digitGroup.querySelectorAll('rect').forEach((rect) => {
+      rect.classList.toggle('on', lit.includes(rect.dataset.seg));
+    });
+  });
+  $('wo-ring').closest('svg').setAttribute('aria-label', `Temps : ${formatClock(totalSec)}`);
+}
+
+/* Réduit la taille d'un texte sur une ligne jusqu'à ce qu'il tienne dans son cadre
+   (ex. "PRÉPARATION" est bien plus long que "REPOS"). */
+function fitText(el) {
+  el.style.fontSize = '';                     // repart de la taille définie en CSS
+  let size = parseFloat(getComputedStyle(el).fontSize);
+  while (el.scrollWidth > el.clientWidth && size > 16) {
+    size *= 0.92;
+    el.style.fontSize = `${size}px`;
+  }
 }
 
 function render() {
@@ -664,9 +736,9 @@ function render() {
   $('wo-done-actions').hidden = !w.finished;
 
   if (w.finished) {
-    setText($('wo-phase'), PHASE_LABELS.done);
-    setText($('wo-exercise'), w.preset.name);
-    setText($('wo-time'), formatClock(Math.round(w.elapsedMs / 1000)));
+    setPhaseLabel(PHASE_LABELS.done);
+    setText($('wo-exercise'), w.preset.mode === 'emom' ? 'EMOM' : 'TABATA');
+    setDigits(Math.round(w.elapsedMs / 1000));
     $('wo-ring').style.strokeDashoffset = 0;
     setText($('wo-round'), 'Bravo !');
     setText($('wo-next'), `Durée d'effort : ${formatDuration(Math.round(w.elapsedMs / 1000))}`);
@@ -677,9 +749,9 @@ function render() {
   const phase = w.phases[w.index];
   const remaining = phaseRemainingMs();
 
-  setText($('wo-phase'), w.paused ? 'PAUSE' : PHASE_LABELS[phase.type]);
+  setPhaseLabel(w.paused ? 'PAUSE' : PHASE_LABELS[phase.type]);
   setText($('wo-exercise'), phase.type === 'work' ? phase.exercise : '');
-  setText($('wo-time'), formatClock(Math.ceil(remaining / 1000)));
+  setDigits(Math.ceil(remaining / 1000));
   // Anneau : plein au début de la phase, vide à la fin
   $('wo-ring').style.strokeDashoffset = 1 - remaining / (phase.duration * 1000);
   setText($('wo-round'), phase.counter);
@@ -748,9 +820,15 @@ function describePreset(p) {
        + ` · ${p.work} s / ${p.rest} s · ${total}`;
 }
 
+/* Icônes du bouton son (SVG en ligne : elles prennent la couleur du texte) */
+const ICONS = {
+  sound: '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19.5 5.5a9 9 0 0 1 0 13"/></svg>',
+  muted: '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>',
+};
+
 function updateMuteButtons() {
   document.querySelectorAll('.js-mute').forEach(btn => {
-    btn.textContent = state.settings.muted ? '🔇' : '🔊';
+    btn.innerHTML = state.settings.muted ? ICONS.muted : ICONS.sound;
     btn.setAttribute('aria-label', state.settings.muted ? 'Réactiver le son' : 'Couper le son');
   });
 }
@@ -758,12 +836,12 @@ function updateMuteButtons() {
 /* ---------- Accueil ---------- */
 function renderHome() {
   const p = currentPreset();
-  $('home-preset-name').textContent = p.name;
-  $('home-summary').textContent = describePreset(p);
-  const items = p.mode === 'emom'
-    ? p.emomExercises.map(emomLabel)
-    : p.exercises.map(exerciseName);
-  $('home-exercises').innerHTML = items.map(t => `<li>${escapeHtml(t)}</li>`).join('');
+  // Au centre : juste le type de séance, et une ligne de chiffres clés en dessous
+  $('home-mode').textContent = p.mode === 'emom' ? 'EMOM' : 'TABATA';
+  const total = formatClock(totalSeconds(p));
+  $('home-summary').textContent = p.mode === 'emom'
+    ? `${p.emomMinutes} × ${p.emomInterval} s · ${total}`
+    : `${p.rounds} × ${p.exercises.length || 1} · ${p.work}/${p.rest} · ${total}`;
 }
 
 /* ---------- Liste des séances ---------- */
@@ -1068,6 +1146,11 @@ function bindEvents() {
   $('btn-restart').addEventListener('click', () => startWorkout(state.workout.preset));
   $('btn-home').addEventListener('click', leaveWorkout);
 
+  // Rotation de l'écran : on réajuste la taille du nom de la phase
+  window.addEventListener('resize', () => fitText($('wo-phase')));
+  // La police peut finir de charger après le 1er affichage : on réajuste à ce moment-là
+  document.fonts?.ready.then(() => fitText($('wo-phase')));
+
   // Raccourcis clavier sur ordinateur : Espace = pause, → = passer
   document.addEventListener('keydown', (event) => {
     if ($('screen-workout').hidden || !state.workout) return;
@@ -1078,6 +1161,7 @@ function bindEvents() {
 
 function init() {
   loadAll();
+  buildSegDisplay();
   bindEvents();
   updateMuteButtons();
   goTo('screen-home');

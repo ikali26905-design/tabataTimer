@@ -18,6 +18,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Tabata">
 
+  <!-- Police hébergée dans le dépôt (pas de requête externe : marche hors ligne) -->
+  <link rel="preload" href="fonts/chakra-petch-700.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -25,25 +27,23 @@
   <!-- =========================================================
        ÉCRAN 1 : ACCUEIL — dernière séance + gros bouton DÉMARRER
        ========================================================= -->
-  <section id="screen-home" class="screen">
-    <header class="topbar">
-      <h1 class="brand">Tabata<span>Timer</span></h1>
-      <button class="icon-btn js-mute" type="button" aria-label="Couper le son">🔊</button>
+  <section id="screen-home" class="screen home">
+    <header class="topbar topbar-end">
+      <button class="icon-btn js-mute" type="button" aria-label="Couper le son"></button>
     </header>
 
+    <!-- Centre de l'écran : juste le type de séance ("TABATA" ou "EMOM") -->
     <div class="home-main">
-      <p class="eyebrow">Séance prête</p>
-      <h2 id="home-preset-name"></h2>
-      <p id="home-summary" class="summary"></p>
-      <ul id="home-exercises" class="chips"></ul>
+      <h1 id="home-mode" class="home-mode">TABATA</h1>
+      <p id="home-summary" class="home-summary"></p>
     </div>
 
-    <button id="btn-start" class="btn btn-primary btn-huge" type="button">▶ DÉMARRER</button>
+    <button id="btn-start" class="btn btn-primary btn-huge" type="button">DÉMARRER</button>
 
     <nav class="home-nav">
-      <button class="btn" type="button" data-goto="screen-presets">Séances</button>
-      <button class="btn" type="button" id="btn-edit-current">Modifier</button>
-      <button class="btn" type="button" data-goto="screen-history">Historique</button>
+      <button class="btn btn-ghost" type="button" data-goto="screen-presets">Séances</button>
+      <button class="btn btn-ghost" type="button" id="btn-edit-current">Modifier</button>
+      <button class="btn btn-ghost" type="button" data-goto="screen-history">Historique</button>
     </nav>
   </section>
 
@@ -136,23 +136,24 @@
        ========================================================= -->
   <section id="screen-workout" class="screen workout" data-phase="prep" hidden>
     <div class="wo-top">
-      <button class="icon-btn js-mute" type="button" aria-label="Couper le son">🔊</button>
+      <button class="icon-btn js-mute" type="button" aria-label="Couper le son"></button>
       <div class="wo-total">Reste <strong id="wo-total">00:00</strong></div>
     </div>
 
     <div class="wo-head">
-      <p id="wo-phase" class="wo-phase" aria-live="polite">PRÉPARATION</p>
+      <p id="wo-phase" class="wo-phase" aria-live="polite"></p>
       <p id="wo-exercise" class="wo-exercise"></p>
     </div>
 
     <div class="wo-ring">
       <!-- Anneau de progression : pathLength="1" permet de régler la progression
            avec une valeur entre 0 et 1 (stroke-dashoffset) -->
-      <svg class="ring" viewBox="0 0 200 200">
+      <svg class="ring" viewBox="0 0 200 200" role="img" aria-label="Temps restant">
         <circle class="ring-track" cx="100" cy="100" r="90"/>
         <circle id="wo-ring" class="ring-progress" cx="100" cy="100" r="90"
                 pathLength="1" transform="rotate(-90 100 100)"/>
-        <text id="wo-time" class="ring-time" x="100" y="102">00:00</text>
+        <!-- Chiffres "afficheur à segments" (comme le logo), générés par app.js -->
+        <g id="wo-digits" class="seg-display"></g>
       </svg>
     </div>
 

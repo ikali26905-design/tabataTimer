@@ -8,7 +8,7 @@
    CACHE_VERSION (v1 → v2…). Sinon les téléphones garderont l'ancienne version.
    ========================================================= */
 
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 const CACHE_NAME = `tabata-timer-${CACHE_VERSION}`;
 
 // Tous les fichiers nécessaires pour fonctionner hors ligne (chemins relatifs :
@@ -23,6 +23,9 @@ const ASSETS = [
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/apple-touch-icon.png',
+  './fonts/chakra-petch-500.woff2',
+  './fonts/chakra-petch-700.woff2',
+  './fonts/chakra-petch-700-italic.woff2',
 ];
 
 // 1. Installation : on télécharge et met en cache tous les fichiers

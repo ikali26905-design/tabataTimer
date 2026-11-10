@@ -1,42 +1,62 @@
 /* =========================================================
    TABATA TIMER — style.css
    Sommaire :
-   1. Variables (couleurs, tailles) : à modifier en priorité
-   2. Base
-   3. Composants communs (boutons, barre du haut)
-   4. Accueil
-   5. Listes (séances, historique)
-   6. Formulaire d'édition
-   7. Écran de séance (portrait)
-   8. Écran de séance (paysage)
+   1. Police (hébergée dans /fonts)
+   2. Variables (couleurs, tailles) : à modifier en priorité
+   3. Base
+   4. Composants communs (boutons, barre du haut)
+   5. Accueil
+   6. Listes (séances, historique)
+   7. Formulaire d'édition
+   8. Écran de séance : palettes des phases
+   9. Écran de séance : mise en page portrait
+  10. Écran de séance : mise en page paysage
    ========================================================= */
 
-/* ---------- 1. VARIABLES ---------- */
+/* ---------- 1. POLICE ----------
+   Chakra Petch : police anguleuse, style "tech/sport", licence libre (OFL).
+   Les fichiers sont dans /fonts : aucune requête externe, ça marche hors ligne. */
+@font-face {
+  font-family: 'Chakra Petch';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('../fonts/chakra-petch-500.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Chakra Petch';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../fonts/chakra-petch-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Chakra Petch';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../fonts/chakra-petch-700-italic.woff2') format('woff2');
+}
+
+/* ---------- 2. VARIABLES ---------- */
 :root {
   /* Thème principal : noir / gris sombre */
   --bg: #0b0b0c;
-  --surface: #161618;
-  --surface-2: #242428;
-  --border: #2e2e33;
+  --surface: #151517;
+  --surface-2: #222226;
+  --border: #2c2c31;
   --text: #f5f5f5;
-  --muted: #9a9aa2;
+  --muted: #8d8d96;
   --accent: #ef4444;          /* rouge, utilisé avec parcimonie */
 
-  /* Couleurs des phases : fonds pleins, bien visibles à 3 m */
-  --phase-prep: #f59e0b;      /* orange/jaune */
-  --phase-work: #dc2626;      /* rouge */
-  --phase-rest: #16a34a;      /* vert */
-  --phase-round-rest: #0f766e;/* vert-bleu : repos long entre rounds */
-  --phase-done: #172554;      /* bleu nuit */
-
-  --radius: 18px;
+  --radius: 14px;
   --tap: 64px;                /* hauteur minimale d'une zone tactile */
-  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --font: 'Chakra Petch', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 
   color-scheme: dark;         /* champs de formulaire natifs en sombre */
 }
 
-/* ---------- 2. BASE ---------- */
+/* ---------- 3. BASE ---------- */
 *, *::before, *::after { box-sizing: border-box; }
 
 html, body {
@@ -44,6 +64,7 @@ html, body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font);
+  font-weight: 500;
   -webkit-tap-highlight-color: transparent;  /* pas de flash gris au toucher sur mobile */
   -webkit-text-size-adjust: 100%;
 }
@@ -70,15 +91,15 @@ button { font: inherit; color: inherit; cursor: pointer; touch-action: manipulat
     max(16px, env(safe-area-inset-left));
 }
 
-h3 { margin: 8px 0 0; font-size: 1.15rem; }
-h3 small { color: var(--muted); font-weight: 500; }
+/* Titres : italique gras en capitales = effet "dynamique" */
+h1, h2, h3 { font-weight: 700; font-style: italic; text-transform: uppercase; letter-spacing: 0.02em; }
+h3 { margin: 8px 0 0; font-size: 1.1rem; }
+h3 small { color: var(--muted); font-weight: 500; font-style: normal; text-transform: none; letter-spacing: 0; }
 
-/* ---------- 3. COMPOSANTS COMMUNS ---------- */
+/* ---------- 4. COMPOSANTS COMMUNS ---------- */
 .topbar { display: flex; align-items: center; gap: 12px; }
+.topbar-end { justify-content: flex-end; }
 .topbar h1 { flex: 1; margin: 0; font-size: 1.4rem; }
-
-.brand { font-size: 1.5rem; font-weight: 900; letter-spacing: -0.02em; }
-.brand span { margin-left: 0.25em; color: var(--muted); font-weight: 500; }
 
 .icon-btn {
   flex: none;
@@ -89,7 +110,7 @@ h3 small { color: var(--muted); font-weight: 500; }
   border-radius: 50%;
   border: 1px solid var(--border);
   background: var(--surface);
-  font-size: 1.5rem;
+  font-size: 1.4rem;
 }
 
 .btn {
@@ -98,54 +119,58 @@ h3 small { color: var(--muted); font-weight: 500; }
   border-radius: var(--radius);
   border: 1px solid var(--border);
   background: var(--surface-2);
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 .btn:active, .wo-btn:active, .icon-btn:active { transform: scale(0.97); }
 .btn:disabled { opacity: 0.35; cursor: not-allowed; }
 
 /* Bouton principal : blanc sur noir, le plus contrasté possible */
 .btn-primary { background: var(--text); color: #000; border-color: transparent; }
-.btn-huge { min-height: 104px; font-size: 1.9rem; font-weight: 900; letter-spacing: 0.04em; }
+.btn-ghost { background: transparent; color: var(--muted); }
+.btn-huge {
+  min-height: 104px;
+  font-size: 2rem;
+  font-style: italic;
+  letter-spacing: 0.08em;
+}
 
 /* Bouton "armé" : 1er appui = demande de confirmation, 2e appui = action */
 .is-armed { background: var(--accent) !important; color: #fff !important; }
 
-/* ---------- 4. ACCUEIL ---------- */
+/* ---------- 5. ACCUEIL (épuré) ---------- */
 .home-main {
   flex: 1;
   display: flex;
   flex-direction: column;
+  align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 14px;
+  text-align: center;
 }
 
-.eyebrow {
+.home-mode {
+  margin: 0;
+  font-size: clamp(3.8rem, 21vw, 9rem);
+  line-height: 0.9;
+  letter-spacing: -0.01em;
+}
+
+.home-summary {
   margin: 0;
   color: var(--muted);
-  font-size: 0.85rem;
-  font-weight: 700;
-  letter-spacing: 0.15em;
+  font-size: 1rem;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
 }
 
-#home-preset-name {
-  margin: 0;
-  font-size: clamp(2.2rem, 9vw, 3.5rem);
-  font-weight: 900;
-  line-height: 1.05;
-  overflow-wrap: anywhere;
-}
+.home-nav { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.home-nav .btn { padding: 0 6px; font-size: 0.9rem; }
 
-.summary { margin: 0; color: var(--muted); font-size: 1.1rem; font-variant-numeric: tabular-nums; }
-
-.chips { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
-.chips li { padding: 8px 14px; border-radius: 999px; background: var(--surface-2); font-weight: 600; }
-
-.home-nav { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-.home-nav .btn { padding: 0 8px; font-size: 1rem; }
-
-/* ---------- 5. LISTES (séances, historique) ---------- */
+/* ---------- 6. LISTES (séances, historique) ---------- */
 .card-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
 
 .card {
@@ -167,27 +192,27 @@ h3 small { color: var(--muted); font-weight: 500; }
   background: none;
   text-align: left;
 }
-.card-title { display: block; font-size: 1.3rem; font-weight: 800; }
+.card-title { display: block; font-size: 1.25rem; font-weight: 700; font-style: italic; text-transform: uppercase; }
 .card-sub { display: block; margin-top: 4px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
 .history-item { flex-direction: row; align-items: center; gap: 14px; }
-.history-status { font-size: 1.6rem; }
+.history-status { font-size: 1.5rem; }
 .history-text { flex: 1; }
-.history-duration { font-size: 1.2rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.history-duration { font-size: 1.25rem; font-weight: 700; font-variant-numeric: tabular-nums; }
 
 .empty { color: var(--muted); text-align: center; padding: 32px 0; }
 
-/* ---------- 6. FORMULAIRE D'ÉDITION ---------- */
+/* ---------- 7. FORMULAIRE D'ÉDITION ---------- */
 .form { flex: 1; display: flex; flex-direction: column; gap: 16px; }
 
-.field { display: flex; flex-direction: column; gap: 6px; color: var(--muted); font-weight: 600; }
+.field { display: flex; flex-direction: column; gap: 6px; color: var(--muted); font-weight: 700; }
 
 input[type="text"], input[type="number"] {
   width: 100%;
   min-height: 56px;
   padding: 0 14px;
-  border-radius: 14px;
+  border-radius: 12px;
   border: 1px solid var(--border);
   background: var(--surface);
   color: var(--text);
@@ -209,11 +234,13 @@ input[type="range"] { width: 100%; height: 40px; accent-color: #fff; }
 .segmented button {
   min-height: 56px;
   border: 0;
-  border-radius: 14px;
+  border-radius: 10px;
   background: transparent;
   color: var(--muted);
-  font-size: 1.1rem;
-  font-weight: 800;
+  font-size: 1.15rem;
+  font-weight: 700;
+  font-style: italic;
+  letter-spacing: 0.06em;
 }
 .segmented button[aria-pressed="true"] { background: var(--text); color: #000; }
 
@@ -233,12 +260,12 @@ input[type="range"] { width: 100%; height: 40px; accent-color: #fff; }
 .stepper button {
   height: 56px;
   border: 0;
-  border-radius: 14px;
+  border-radius: 10px;
   background: var(--surface-2);
   font-size: 1.7rem;
-  font-weight: 800;
+  font-weight: 700;
 }
-.stepper output { text-align: center; font-size: 1.3rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.stepper output { text-align: center; font-size: 1.3rem; font-weight: 700; font-variant-numeric: tabular-nums; }
 
 /* Ligne d'exercice : nom sur toute la largeur, puis durée/répétitions + boutons */
 .ex-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
@@ -252,12 +279,12 @@ input[type="range"] { width: 100%; height: 40px; accent-color: #fff; }
   background: var(--surface);
 }
 .ex-row .ex-name { grid-column: 1 / -1; }
-.ex-num { display: flex; align-items: center; gap: 8px; color: var(--muted); font-weight: 600; }
+.ex-num { display: flex; align-items: center; gap: 8px; color: var(--muted); font-weight: 700; }
 .ex-num input { min-width: 0; text-align: center; }
 .ex-row button {
   height: 56px;
   border: 0;
-  border-radius: 14px;
+  border-radius: 10px;
   background: var(--surface-2);
   font-size: 1.2rem;
 }
@@ -279,18 +306,29 @@ input[type="range"] { width: 100%; height: 40px; accent-color: #fff; }
   background: linear-gradient(transparent, var(--bg) 24px);
 }
 
-/* ---------- 7. ÉCRAN DE SÉANCE (portrait) ---------- */
+/* ---------- 8. ÉCRAN DE SÉANCE : PALETTES DES PHASES ----------
+   Chaque phase a 4 teintes de la MÊME couleur, pour un rendu harmonieux :
+     --deep   : bord de l'écran (très sombre)
+     --mid    : centre de l'écran (couleur franche, reconnaissable à 3 m)
+     --bright : anneau et nom de la phase (lumineux)
+     --soft   : textes secondaires (teinte pâle) */
+.workout                         { --deep: #2a1802; --mid: #b45309; --bright: #fbbf24; --soft: #fde9b0; }
+.workout[data-phase="work"]      { --deep: #250404; --mid: #b91c1c; --bright: #ff5a5a; --soft: #fecaca; }
+.workout[data-phase="rest"]      { --deep: #021a0c; --mid: #15803d; --bright: #4ade80; --soft: #c6f6d5; }
+.workout[data-phase="roundRest"] { --deep: #021c1a; --mid: #0f766e; --bright: #2dd4bf; --soft: #b5f5ea; }
+.workout[data-phase="done"]      { --deep: #040a20; --mid: #1e3a8a; --bright: #60a5fa; --soft: #c7dcfe; }
+
+/* ---------- 9. ÉCRAN DE SÉANCE : PORTRAIT ---------- */
 .workout {
-  /* La couleur de fond suit la phase (attribut data-phase posé par app.js) */
-  --phase-bg: var(--phase-prep);
-  --phase-fg: #fff;
   max-width: none;
   height: 100dvh;
   min-height: 0;
   overflow: hidden;
-  background: var(--phase-bg);
-  color: var(--phase-fg);
-  transition: background-color 0.4s ease;
+  /* Dégradé radial : couleur franche au centre (derrière le chrono), sombre sur les bords */
+  background:
+    radial-gradient(circle at 50% 50%, var(--mid) 0%, color-mix(in srgb, var(--mid) 45%, var(--deep)) 45%, var(--deep) 100%);
+  background-color: var(--deep);
+  color: #fff;
   text-align: center;
   user-select: none;
   -webkit-user-select: none;
@@ -302,71 +340,83 @@ input[type="range"] { width: 100%; height: 40px; accent-color: #fff; }
   grid-template-areas: "top" "head" "ring" "info" "controls";
   gap: clamp(8px, 2vh, 20px);
 }
-.workout[data-phase="prep"]       { --phase-bg: var(--phase-prep); --phase-fg: #111; }
-.workout[data-phase="work"]       { --phase-bg: var(--phase-work); }
-.workout[data-phase="rest"]       { --phase-bg: var(--phase-rest); }
-.workout[data-phase="roundRest"]  { --phase-bg: var(--phase-round-rest); }
-.workout[data-phase="done"]       { --phase-bg: var(--phase-done); }
 
 .wo-top { grid-area: top; display: flex; justify-content: space-between; align-items: center; }
-.workout .icon-btn { background: rgba(0, 0, 0, 0.2); border-color: transparent; }
-.wo-total { font-size: 1.2rem; font-weight: 600; font-variant-numeric: tabular-nums; }
-.wo-total strong { font-weight: 900; }
+.workout .icon-btn { background: rgba(0, 0, 0, 0.3); border-color: rgba(255, 255, 255, 0.08); }
+.wo-total {
+  color: var(--soft);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+.wo-total strong { color: #fff; font-size: 1.3rem; letter-spacing: 0.04em; }
 
 .wo-head { grid-area: head; }
 .wo-phase {
   margin: 0;
-  font-size: clamp(2rem, min(12vw, 8vh), 5.5rem);
-  font-weight: 900;
-  letter-spacing: 0.06em;
-  line-height: 1;
+  color: var(--bright);
+  font-size: clamp(2.4rem, min(14vw, 9vh), 6rem);
+  font-weight: 700;
+  font-style: italic;
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+  white-space: nowrap;   /* sur une ligne : app.js réduit la taille si ça déborde (fitText) */
+  padding: 0 0.15em;     /* l'italique dépasse un peu à droite */
+  text-shadow: 0 0 24px color-mix(in srgb, var(--bright) 45%, transparent);
 }
 .wo-exercise {
-  margin: 0.2em 0 0;
+  margin: 0.15em 0 0;
   min-height: 1.15em;   /* garde la place même vide : pas de saut de mise en page */
-  font-size: clamp(1.4rem, min(8vw, 5.5vh), 3.5rem);
-  font-weight: 800;
-  line-height: 1.15;
+  color: #fff;
+  font-size: clamp(1.4rem, min(8vw, 5.5vh), 3.4rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  line-height: 1.1;
   overflow-wrap: anywhere;
 }
 
 /* Anneau + chrono : le SVG s'adapte à la place disponible grâce à son viewBox */
 .wo-ring { grid-area: ring; min-height: 0; display: flex; align-items: center; justify-content: center; }
-.ring { width: 100%; height: 100%; }
-.ring-track { fill: none; stroke: rgba(0, 0, 0, 0.18); stroke-width: 12; }
+.ring { width: 100%; height: 100%; overflow: visible; }
+.ring-track { fill: rgba(0, 0, 0, 0.28); stroke: rgba(0, 0, 0, 0.35); stroke-width: 10; }
 .ring-progress {
   fill: none;
-  stroke: currentColor;
-  stroke-width: 12;
+  stroke: var(--bright);
+  stroke-width: 10;
   stroke-linecap: round;
   stroke-dasharray: 1;              /* avec pathLength="1" : 1 = tour complet */
-  transition: stroke-dashoffset 0.1s linear;
+  transition: stroke-dashoffset 0.1s linear, stroke 0.4s;
+  filter: drop-shadow(0 0 6px var(--bright));   /* halo lumineux */
 }
-.ring-time {
-  fill: currentColor;
-  font-family: var(--font);
-  font-size: 50px;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;  /* chiffres de largeur fixe : le texte ne "danse" pas */
-  letter-spacing: -1px;
-  text-anchor: middle;
-  dominant-baseline: central;
-}
-.workout.is-paused .ring-time { animation: blink 1s steps(2, start) infinite; }
+
+/* Chiffres à segments : segments allumés en blanc, éteints très discrets (effet afficheur) */
+.seg-display rect { fill: rgba(255, 255, 255, 0.07); transition: fill 0.08s; }
+.seg-display rect.on { fill: #fff; }
+.seg-display circle { fill: var(--bright); }
+.workout.is-paused .seg-display { animation: blink 1s steps(2, start) infinite; }
 @keyframes blink { to { visibility: hidden; } }
 
 .wo-info { grid-area: info; }
 .wo-round {
   margin: 0;
-  font-size: clamp(1.2rem, min(6vw, 4.5vh), 2.4rem);
-  font-weight: 800;
+  color: var(--soft);
+  font-size: clamp(1.15rem, min(5.5vw, 4.2vh), 2.2rem);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   font-variant-numeric: tabular-nums;
 }
 .wo-next {
-  margin: 0.2em 0 0;
+  margin: 0.25em 0 0;
   min-height: 1.3em;
+  color: #fff;
   font-size: clamp(1rem, min(4.5vw, 3.5vh), 1.6rem);
-  opacity: 0.85;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 /* Gros boutons en bas, faciles à toucher avec un doigt en sueur */
@@ -378,18 +428,25 @@ input[type="range"] { width: 100%; height: 40px; accent-color: #fff; }
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  border: 0;
-  border-radius: 22px;
-  background: rgba(0, 0, 0, 0.22);
-  color: inherit;
-  font-size: 1.8rem;
+  gap: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--soft);
+  font-size: 1.7rem;
   line-height: 1;
 }
-.wo-btn span { font-size: 0.95rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; }
-.wo-btn-main { background: rgba(0, 0, 0, 0.38); font-size: 2.4rem; }
+.wo-btn span { font-size: 0.9rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+/* Bouton principal (pause) : couleur vive de la phase, texte sombre */
+.wo-btn-main {
+  background: var(--bright);
+  border-color: transparent;
+  color: var(--deep);
+  font-size: 2.3rem;
+}
+.wo-btn-main span { font-style: italic; }
 
-/* ---------- 8. ÉCRAN DE SÉANCE (paysage) ----------
+/* ---------- 10. ÉCRAN DE SÉANCE : PAYSAGE ----------
    Anneau à gauche, infos et boutons à droite. */
 @media (orientation: landscape) {
   .workout {
@@ -401,10 +458,12 @@ input[type="range"] { width: 100%; height: 40px; accent-color: #fff; }
       "ring info"
       "ring controls";
     column-gap: clamp(16px, 4vw, 48px);
+    background:
+      radial-gradient(circle at 28% 50%, var(--mid) 0%, color-mix(in srgb, var(--mid) 45%, var(--deep)) 40%, var(--deep) 100%);
   }
-  .wo-phase    { font-size: clamp(1.6rem, min(6vw, 11vh), 5rem); }
+  .wo-phase    { font-size: clamp(1.8rem, min(7vw, 13vh), 5.5rem); }
   .wo-exercise { font-size: clamp(1.2rem, min(4.5vw, 8vh), 3.2rem); }
-  .wo-round    { font-size: clamp(1.1rem, min(3.5vw, 7vh), 2.2rem); }
+  .wo-round    { font-size: clamp(1rem, min(3.2vw, 6vh), 2rem); }
   .wo-info     { align-self: center; }
   .wo-btn      { min-height: clamp(64px, 18vh, 112px); }
 }
