@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Icône Tabata Timer : un chronomètre avec une silhouette qui court.
+       Le contenu tient dans un cercle central (zone "maskable" sûre) pour
+       qu'Android puisse découper l'icône en rond sans rien couper. -->
+  <defs>
+    <linearGradient id="arc" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f97316"/>
+      <stop offset="1" stop-color="#ef4444"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Fond bleu nuit -->
+  <rect width="512" height="512" fill="#0f172a"/>
+
+  <!-- Bouton du chronomètre (couronne + poussoir latéral) -->
+  <rect x="230" y="92" width="52" height="34" rx="10" fill="#e2e8f0"/>
+  <rect x="246" y="118" width="20" height="22" fill="#e2e8f0"/>
+  <rect x="352" y="132" width="40" height="24" rx="8" fill="#e2e8f0" transform="rotate(45 372 144)"/>
+
+  <!-- Cadran : piste grise + arc de progression (rappelle l'anneau de l'appli) -->
+  <circle cx="256" cy="290" r="150" fill="#1e293b" stroke="#334155" stroke-width="28"/>
+  <circle cx="256" cy="290" r="150" fill="none" stroke="url(#arc)" stroke-width="28"
+          stroke-linecap="round" stroke-dasharray="680 943" transform="rotate(-90 256 290)"/>
+
+  <!-- Silhouette en plein effort (sprint) -->
+  <g fill="none" stroke="#ffffff" stroke-width="24" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M276 240 L246 310"/>                 <!-- buste penché -->
+    <path d="M272 250 L308 272 L334 248"/>        <!-- bras avant -->
+    <path d="M272 250 L238 262 L216 292"/>        <!-- bras arrière -->
+    <path d="M246 310 L292 334 L282 384"/>        <!-- jambe avant -->
+    <path d="M246 310 L214 350 L176 344"/>        <!-- jambe arrière -->
+  </g>
+  <circle cx="290" cy="208" r="23" fill="#ffffff"/> <!-- tête -->
+</svg>
