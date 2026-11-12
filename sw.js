@@ -8,7 +8,7 @@
    CACHE_VERSION (v1 → v2…). Sinon les téléphones garderont l'ancienne version.
    ========================================================= */
 
-const CACHE_VERSION = 'v3';
+const CACHE_VERSION = 'v4';
 const CACHE_NAME = `tabata-timer-${CACHE_VERSION}`;
 
 // Tous les fichiers nécessaires pour fonctionner hors ligne (chemins relatifs :

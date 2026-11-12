@@ -861,8 +861,9 @@ function updateMuteButtons() {
 /* ---------- Accueil ---------- */
 function renderHome() {
   const p = currentPreset();
-  // Au centre : juste le type de séance, et une ligne de chiffres clés en dessous
+  // Au centre : le type de séance en grand, son nom, puis une ligne de chiffres clés
   $('home-mode').textContent = p.mode === 'emom' ? 'EMOM' : 'TABATA';
+  $('home-name').textContent = p.name;
   const total = formatClock(totalSeconds(p));
   $('home-summary').textContent = p.mode === 'emom'
     ? `${p.emomMinutes} × ${p.emomInterval} s · ${total}`

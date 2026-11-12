@@ -158,6 +158,18 @@ h3 small { color: var(--muted); font-weight: 500; font-style: normal; text-trans
   letter-spacing: -0.01em;
 }
 
+/* Nom de la séance, sous "TABATA" : bien lisible mais plus discret que le titre */
+.home-name {
+  margin: 4px 0 0;
+  max-width: 100%;
+  color: var(--text);
+  font-size: clamp(1.3rem, 6vw, 2rem);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
 .home-summary {
   margin: 0;
   color: var(--muted);
