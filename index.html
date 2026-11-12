@@ -52,7 +52,7 @@
        ========================================================= -->
   <section id="screen-presets" class="screen" hidden>
     <header class="topbar">
-      <button class="icon-btn" type="button" data-goto="screen-home" aria-label="Retour">←</button>
+      <button class="icon-btn" type="button" data-goto="screen-home" aria-label="Retour"><span data-icon="back"></span></button>
       <h1>Mes séances</h1>
     </header>
     <ul id="preset-list" class="card-list"></ul>
@@ -65,7 +65,7 @@
        ========================================================= -->
   <section id="screen-edit" class="screen" hidden>
     <header class="topbar">
-      <button class="icon-btn" type="button" id="btn-edit-cancel" aria-label="Annuler">←</button>
+      <button class="icon-btn" type="button" id="btn-edit-cancel" aria-label="Annuler"><span data-icon="back"></span></button>
       <h1 id="edit-title">Modifier la séance</h1>
     </header>
 
@@ -109,7 +109,7 @@
         <input id="opt-voice" type="checkbox">
         <span>Annonces vocales (« Effort ! Burpees »)</span>
       </label>
-      <button id="btn-test-sound" class="btn" type="button">🔈 Tester le son</button>
+      <button id="btn-test-sound" class="btn" type="button"><span class="btn-icon" data-icon="speaker"></span>Tester le son</button>
     </div>
 
     <div class="form-actions">
@@ -123,7 +123,7 @@
        ========================================================= -->
   <section id="screen-history" class="screen" hidden>
     <header class="topbar">
-      <button class="icon-btn" type="button" data-goto="screen-home" aria-label="Retour">←</button>
+      <button class="icon-btn" type="button" data-goto="screen-home" aria-label="Retour"><span data-icon="back"></span></button>
       <h1>Historique</h1>
     </header>
     <ul id="history-list" class="card-list"></ul>
@@ -164,15 +164,15 @@
 
     <!-- Contrôles pendant la séance -->
     <div id="wo-controls" class="wo-controls">
-      <button id="btn-stop" class="wo-btn" type="button">↺<span>Stop</span></button>
-      <button id="btn-pause" class="wo-btn wo-btn-main" type="button">⏸<span>Pause</span></button>
-      <button id="btn-skip" class="wo-btn" type="button">⏭<span>Passer</span></button>
+      <button id="btn-stop" class="wo-btn" type="button"><span class="wo-icon" data-icon="stop"></span><span>Stop</span></button>
+      <button id="btn-pause" class="wo-btn wo-btn-main" type="button"><span class="wo-icon" data-icon="pause"></span><span>Pause</span></button>
+      <button id="btn-skip" class="wo-btn" type="button"><span class="wo-icon" data-icon="skip"></span><span>Passer</span></button>
     </div>
 
     <!-- Contrôles une fois la séance terminée -->
     <div id="wo-done-actions" class="wo-controls wo-controls-done" hidden>
-      <button id="btn-restart" class="wo-btn" type="button">↻<span>Recommencer</span></button>
-      <button id="btn-home" class="wo-btn wo-btn-main" type="button">⌂<span>Accueil</span></button>
+      <button id="btn-restart" class="wo-btn" type="button"><span class="wo-icon" data-icon="restart"></span><span>Recommencer</span></button>
+      <button id="btn-home" class="wo-btn wo-btn-main" type="button"><span class="wo-icon" data-icon="home"></span><span>Accueil</span></button>
     </div>
   </section>
 

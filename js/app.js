@@ -759,7 +759,7 @@ function render() {
   setText($('wo-total'), formatClock(Math.ceil(totalRemainingMs() / 1000)));
 
   const pauseBtn = $('btn-pause');
-  const pauseLabel = w.paused ? '▶<span>Reprendre</span>' : '⏸<span>Pause</span>';
+  const pauseLabel = w.paused ? `${ICONS.play}<span>Reprendre</span>` : `${ICONS.pause}<span>Pause</span>`;
   if (pauseBtn.innerHTML !== pauseLabel) pauseBtn.innerHTML = pauseLabel;
 }
 
@@ -820,11 +820,36 @@ function describePreset(p) {
        + ` · ${p.work} s / ${p.rest} s · ${total}`;
 }
 
-/* Icônes du bouton son (SVG en ligne : elles prennent la couleur du texte) */
+/* ---------- Icônes ----------
+   Toutes les icônes sont des SVG dessinés ici, et non des caractères comme ⏸ ou ⏭ :
+   l'iPhone remplace ces caractères par ses propres emojis en couleur.
+   Un SVG s'affiche pareil partout et prend la couleur du texte (currentColor). */
+const svgIcon = (body, { filled = false } = {}) =>
+  `<svg class="icon" viewBox="0 0 24 24" aria-hidden="true" ${filled
+    ? 'fill="currentColor"'
+    : 'fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"'}>${body}</svg>`;
+
 const ICONS = {
-  sound: '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19.5 5.5a9 9 0 0 1 0 13"/></svg>',
-  muted: '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>',
+  sound:   svgIcon('<path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19.5 5.5a9 9 0 0 1 0 13"/>'),
+  muted:   svgIcon('<path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 9l5 6M22 9l-5 6"/>'),
+  pause:   svgIcon('<rect x="5.5" y="4" width="4.5" height="16" rx="1.3"/><rect x="14" y="4" width="4.5" height="16" rx="1.3"/>', { filled: true }),
+  play:    svgIcon('<path d="M7 4.8v14.4a1 1 0 0 0 1.53.85l11-7.2a1 1 0 0 0 0-1.7l-11-7.2A1 1 0 0 0 7 4.8z"/>', { filled: true }),
+  skip:    svgIcon('<path d="M4 4.8v14.4a1 1 0 0 0 1.53.85l11-7.2a1 1 0 0 0 0-1.7l-11-7.2A1 1 0 0 0 4 4.8z"/><rect x="17.5" y="4" width="3" height="16" rx="1.2"/>', { filled: true }),
+  stop:    svgIcon('<rect x="5" y="5" width="14" height="14" rx="2.5"/>', { filled: true }),
+  restart: svgIcon('<path d="M20.5 12a8.5 8.5 0 1 1-2.6-6.1"/><path d="M20.5 3.5v5h-5"/>'),
+  home:    svgIcon('<path d="M3.5 11 12 4l8.5 7"/><path d="M6 9.5V20h12V9.5"/>'),
+  check:   svgIcon('<path d="M5 12.5l4.5 4.5L19 7.5"/>'),
+  back:    svgIcon('<path d="M19 12H5"/><path d="M11 5l-7 7 7 7"/>'),
+  up:      svgIcon('<path d="M12 19V5"/><path d="M5 12l7-7 7 7"/>'),
+  down:    svgIcon('<path d="M12 5v14"/><path d="M5 12l7 7 7-7"/>'),
+  close:   svgIcon('<path d="M6 6l12 12M18 6L6 18"/>'),
+  speaker: svgIcon('<path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/>'),
 };
+
+/* Remplit tous les éléments <span data-icon="nom"> du HTML avec l'icône correspondante */
+function renderStaticIcons() {
+  document.querySelectorAll('[data-icon]').forEach(el => { el.innerHTML = ICONS[el.dataset.icon]; });
+}
 
 function updateMuteButtons() {
   document.querySelectorAll('.js-mute').forEach(btn => {
@@ -954,9 +979,9 @@ function renderExerciseLists() {
 
 function rowButtons(i, length) {
   return `
-    <button type="button" data-row="up" ${i === 0 ? 'disabled' : ''} aria-label="Monter">↑</button>
-    <button type="button" data-row="down" ${i === length - 1 ? 'disabled' : ''} aria-label="Descendre">↓</button>
-    <button type="button" data-row="delete" aria-label="Supprimer">✕</button>`;
+    <button type="button" data-row="up" ${i === 0 ? 'disabled' : ''} aria-label="Monter">${ICONS.up}</button>
+    <button type="button" data-row="down" ${i === length - 1 ? 'disabled' : ''} aria-label="Descendre">${ICONS.down}</button>
+    <button type="button" data-row="delete" aria-label="Supprimer">${ICONS.close}</button>`;
 }
 
 function renderEditTotal() {
@@ -1068,7 +1093,7 @@ function renderHistory() {
   });
   list.innerHTML = state.history.map(h => `
     <li class="card history-item">
-      <span class="history-status" title="${h.completed ? 'Terminée' : 'Interrompue'}">${h.completed ? '✅' : '⏹'}</span>
+      <span class="history-status" title="${h.completed ? 'Terminée' : 'Interrompue'}">${h.completed ? ICONS.check : ICONS.stop}</span>
       <span class="history-text">
         <span class="card-title">${escapeHtml(h.name)}</span>
         <span class="card-sub">${dateFormat.format(new Date(h.date))}${h.completed ? '' : ' · interrompue'}</span>
@@ -1163,6 +1188,7 @@ function init() {
   loadAll();
   buildSegDisplay();
   bindEvents();
+  renderStaticIcons();
   updateMuteButtons();
   goTo('screen-home');
 }

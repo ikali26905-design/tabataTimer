@@ -436,7 +436,14 @@ input[type="range"] { width: 100%; height: 40px; accent-color: #fff; }
   font-size: 1.7rem;
   line-height: 1;
 }
-.wo-btn span { font-size: 0.9rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+/* Icônes SVG : leur taille suit la taille de police du bouton (1em) */
+.icon { display: block; width: 1em; height: 1em; }
+.icon-btn .icon { width: 26px; height: 26px; }
+.ex-row .icon { width: 22px; height: 22px; margin: auto; }
+.wo-btn .wo-icon { font-size: inherit; letter-spacing: 0; }
+.btn-icon { display: inline-block; vertical-align: -0.15em; margin-right: 0.5em; }
+.history-status { color: var(--muted); }
+.wo-btn span:not(.wo-icon) { font-size: 0.9rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
 /* Bouton principal (pause) : couleur vive de la phase, texte sombre */
 .wo-btn-main {
   background: var(--bright);
@@ -444,7 +451,7 @@ input[type="range"] { width: 100%; height: 40px; accent-color: #fff; }
   color: var(--deep);
   font-size: 2.3rem;
 }
-.wo-btn-main span { font-style: italic; }
+.wo-btn-main span:not(.wo-icon) { font-style: italic; }
 
 /* ---------- 10. ÉCRAN DE SÉANCE : PAYSAGE ----------
    Anneau à gauche, infos et boutons à droite. */
